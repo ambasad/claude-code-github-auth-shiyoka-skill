@@ -71,7 +71,7 @@ EOF
 
   run grep -c "^Host github.com" "$HOME/.ssh/config"
   [ "$status" -eq 0 ]
-  [ "$output" -eq 1 ]
+  [ "$output" = "1" ]
 }
 
 # 解除: credential.https://github.com.helper が削除されること
@@ -83,6 +83,63 @@ EOF
 
   run git config --global credential.https://github.com.helper
   [ "$status" -ne 0 ]  # 設定が存在しない場合は exit code 1
+}
+
+# op.env: .gitignore に op.env が追記されること
+@test "op.env: .gitignore に op.env が追記される" {
+  touch "$HOME/.gitignore"
+  grep -qxF 'op.env' "$HOME/.gitignore" 2>/dev/null || echo 'op.env' >> "$HOME/.gitignore"
+
+  run grep -c "^op\.env$" "$HOME/.gitignore"
+  [ "$status" -eq 0 ]
+  [ "$output" = "1" ]
+}
+
+# op.env: 二重追記されないこと
+@test "op.env: .gitignore に op.env が重複追記されない" {
+  touch "$HOME/.gitignore"
+  grep -qxF 'op.env' "$HOME/.gitignore" 2>/dev/null || echo 'op.env' >> "$HOME/.gitignore"
+  grep -qxF 'op.env' "$HOME/.gitignore" 2>/dev/null || echo 'op.env' >> "$HOME/.gitignore"
+
+  run grep -c "^op\.env$" "$HOME/.gitignore"
+  [ "$status" -eq 0 ]
+  [ "$output" = "1" ]
+}
+
+# Deploy Key: Host エイリアスが SSH config に追加されること
+@test "Deploy Key: Host github-<repo> エイリアスが SSH config に追加される" {
+  mkdir -p "$HOME/.ssh"
+  ALIAS="github-my-repo"
+  BLOCK="
+Host $ALIAS
+    HostName github.com
+    User git"
+
+  sed -i "/^Host $ALIAS/,/^$/d" "$HOME/.ssh/config" 2>/dev/null || true
+  printf '%s\n' "$BLOCK" >> "$HOME/.ssh/config"
+
+  run grep -c "^Host $ALIAS" "$HOME/.ssh/config"
+  [ "$status" -eq 0 ]
+  [ "$output" = "1" ]
+}
+
+# Deploy Key: Host エイリアスが重複しないこと
+@test "Deploy Key: Host github-<repo> エイリアスが重複しない" {
+  mkdir -p "$HOME/.ssh"
+  ALIAS="github-my-repo"
+  BLOCK="
+Host $ALIAS
+    HostName github.com
+    User git"
+
+  for _ in 1 2; do
+    sed -i "/^Host $ALIAS/,/^$/d" "$HOME/.ssh/config" 2>/dev/null || true
+    printf '%s\n' "$BLOCK" >> "$HOME/.ssh/config"
+  done
+
+  run grep -c "^Host $ALIAS" "$HOME/.ssh/config"
+  [ "$status" -eq 0 ]
+  [ "$output" = "1" ]
 }
 
 # SSH config 反映確認: ssh.exe -G で user git が返ること（Windows 側 config 設定済みの場合）

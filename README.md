@@ -81,13 +81,16 @@ GITHUB_TOKEN=op://<Vault名>/<アイテム名>/credential
 
 ## 設定後にできること
 
-- `git clone` / `git push` / `git pull` が追加入力なしで動く
-- Fine-grained PAT でリポジトリ単位・操作種別まで権限を絞れる
-- Deploy Key でリポジトリ専用の SSH 鍵を設定できる
-- 複数の GitHub アカウントを Host エイリアスで使い分けられる
-- 秘密鍵・PAT はすべて 1Password に保存され、ディスクに平文保存されない
+| 機能 | Step 2a (PAT+op) | Step 2b (GCM) | Step 3 (Deploy Key) | Step 4/4b (SSH Agent) |
+|---|:---:|:---:|:---:|:---:|
+| `git clone / push / pull` 自動認証 | ✅ | ✅ | ✅ | ✅ |
+| リポジトリ単位の権限制限 | ✅ | - | ✅ | - |
+| 秘密情報をディスクに保存しない | ✅ | - | ✅ | ✅ |
+| PAT を 1Password で管理 | ✅ | - | - | - |
+| SSH 鍵を 1Password で管理 | - | - | ✅ | ✅ |
+| 複数 GitHub アカウントの使い分け | - | - | ✅ | ✅ (Step 4c) |
 
-> SSH config テンプレート（`templates/ssh_config_github`）はリポジトリに含まれているため、インストール後に手動作成する必要はありません。
+> SSH config テンプレート（`templates/ssh_config_github`）はリポジトリに含まれており、Step 4b 実行時に自動で Linux・Windows 両側に適用されます。
 
 ## 解除方法
 

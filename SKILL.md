@@ -55,8 +55,9 @@ GITHUB_TOKEN=op://<Vault名>/<アイテム名>/credential
 
 ---
 
-> **前提条件：** Windows 11 + WSL2 環境を想定している。WSL interop が有効で `ssh.exe` が WSL から呼び出せること。
-> macOS / Linux ネイティブ環境では Step 1b は対象外となり、Step 1 または Step 2〜4 を使う。
+> **対応環境：** Windows 11 + WSL2 / macOS / Linux に対応している。
+> WSL2 の場合は WSL interop が有効で `ssh.exe` が WSL から呼び出せること。
+> SSH 方式（Step 4）は WSL2 専用の Step 4b と macOS / Linux 向けの Step 4 に分かれている。
 
 git credential helper を設定し、以降の `git clone` / `git push` / `git pull` で
 GitHub 認証を自動的に行えるようにする。
