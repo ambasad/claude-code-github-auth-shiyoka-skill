@@ -12,7 +12,7 @@ version: "0.2.0"
 クローン先を `github-auth-shiyoka` に指定することで、そのまま Claude Code に認識される。
 
 ```bash
-git clone https://github.com/ambasad/claude-skill-github-auth-shiyoka.git ~/.claude/skills/github-auth-shiyoka
+git clone https://github.com/ambasad/claude-code-github-auth-shiyoka-skill.git ~/.claude/skills/github-auth-shiyoka
 ```
 
 ### スキルを最新に更新する場合
