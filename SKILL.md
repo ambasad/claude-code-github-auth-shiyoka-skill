@@ -123,6 +123,13 @@ fi
 # git の SSH コマンド設定
 git config --global core.sshCommand 2>/dev/null || echo "(未設定)"
 
+# 1Password CLI の有無とバージョン確認
+if command -v op >/dev/null 2>&1; then
+  echo "op: $(op --version 2>/dev/null || echo 'バージョン取得失敗')"
+else
+  echo "op: not found"
+fi
+
 # 1Password SSH Agent の鍵一覧
 $SSH_ADD_CMD -l 2>/dev/null || echo "SSH Agent 未接続"
 
@@ -311,70 +318,73 @@ brew install 1password-cli
 
 ## Step 2a: op がある場合
 
-1. サインイン：
-   ```bash
-   eval "$(op signin)"
-   ```
+### 1. サインイン
 
-2. プロジェクトルートの `op.env` を読み取る。存在しない場合は以下を自動検出してまとめて1回で確認し、`op.env` を作成する：
+```bash
+eval "$(op signin)"
+```
 
-   ```bash
-   # git の表示名を参考情報として取得（GitHub ユーザー名と異なる場合あり）
-   git config --global user.name 2>/dev/null
+### 2. op.env を確認・作成する
 
-   # 1Password の GitHub 関連アイテムを候補として取得（サインイン済みの場合）
-   op item list --format=json 2>/dev/null | grep -i github
-   ```
+プロジェクトルートの `op.env` を読み取る。存在しない場合は以下を自動検出してまとめて1回で確認し、`op.env` を作成する：
 
-   取得した候補をもとに、以下をまとめて1回で確認する：
+```bash
+# git の表示名を参考情報として取得（GitHub ユーザー名と異なる場合あり）
+git config --global user.name 2>/dev/null
 
-   ```
-   以下の設定で op.env を作成してよいですか？
+# 1Password の GitHub 関連アイテムを候補として取得（サインイン済みの場合）
+op item list --format=json 2>/dev/null | grep -i github
+```
 
-   GITHUB_USERNAME=<自動検出した値>
-   GITHUB_TOKEN=op://<Vault名>/<アイテム名>/credential
+取得した候補をもとに、以下をまとめて1回で確認する：
 
-   変更がある場合は修正してください。
-   ```
+```
+以下の設定で op.env を作成してよいですか？
 
-   確認後、`op.env` を作成し `.gitignore` に追記する：
+GITHUB_USERNAME=<自動検出した値>
+GITHUB_TOKEN=op://<Vault名>/<アイテム名>/credential
 
-   ```bash
-   # op.env を作成
-   cat > op.env << EOF
-   GITHUB_USERNAME=<GitHubユーザー名>
-   GITHUB_TOKEN=op://<Vault名>/<アイテム名>/credential
-   EOF
+変更がある場合は修正してください。
+```
 
-   # 他のユーザーから読めないようにする
-   chmod 600 op.env
+確認後、`op.env` を作成し `.gitignore` に追記する：
 
-   # .gitignore に追加（未記載の場合のみ）
-   grep -qxF 'op.env' .gitignore 2>/dev/null || echo 'op.env' >> .gitignore
-   ```
+```bash
+# op.env を作成
+cat > op.env << EOF
+GITHUB_USERNAME=<GitHubユーザー名>
+GITHUB_TOKEN=op://<Vault名>/<アイテム名>/credential
+EOF
 
-3. 既存の credential helper を確認する：
+# 他のユーザーから読めないようにする
+chmod 600 op.env
 
-   ```bash
-   git config --global credential.helper
-   ```
+# .gitignore に追加（未記載の場合のみ）
+grep -qxF 'op.env' .gitignore 2>/dev/null || echo 'op.env' >> .gitignore
+```
 
-   すでに別の設定（`manager` など）が入っている場合は上書きになる。必要であればバックアップしておく：
+### 3. 既存の credential helper を確認する
 
-   ```bash
-   # バックアップ（任意）
-   git config --global credential.helper >> ~/credential-helper.bak
-   ```
+```bash
+git config --global credential.helper
+```
 
-4. `op.env` の値を使って credential helper を設定する：
+すでに別の設定（`manager` など）が入っている場合は上書きになる。必要であればバックアップしておく：
 
-   ```bash
-   set -a && source op.env && set +a
-   git config --global credential.https://github.com.helper \
-     "!f() { echo username=$GITHUB_USERNAME; echo password=\$(op read \"$GITHUB_TOKEN\"); }; f"
-   ```
+```bash
+# バックアップ（任意）
+git config --global credential.helper >> ~/credential-helper.bak
+```
 
-   > `credential.https://github.com.helper` とすることで github.com 専用の設定になり、GitLab など他のホストに影響しない。
+### 4. credential helper を設定する
+
+```bash
+set -a && source op.env && set +a
+git config --global credential.https://github.com.helper \
+  "!f() { echo username=$GITHUB_USERNAME; echo password=\$(op read \"$GITHUB_TOKEN\"); }; f"
+```
+
+> `credential.https://github.com.helper` とすることで github.com 専用の設定になり、GitLab など他のホストに影響しない。
 
 ---
 
