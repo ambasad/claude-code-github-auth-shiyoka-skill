@@ -142,6 +142,38 @@ Host $ALIAS
   [ "$output" = "1" ]
 }
 
+# OS 判定: /proc/version に microsoft が含まれない場合は Linux と判定されること
+@test "OS 判定: microsoft を含まない /proc/version では Linux と判定される" {
+  run bash -c '
+    PROC_VERSION_MOCK="Linux version 5.15.0-generic"
+    if echo "$PROC_VERSION_MOCK" | grep -qi microsoft; then
+      echo "WSL2"
+    elif [[ "$(uname)" == "Darwin" ]]; then
+      echo "macOS"
+    else
+      echo "Linux"
+    fi
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "Linux" ]
+}
+
+# OS 判定: /proc/version に microsoft が含まれる場合は WSL2 と判定されること
+@test "OS 判定: microsoft を含む /proc/version では WSL2 と判定される" {
+  run bash -c '
+    PROC_VERSION_MOCK="Linux version 5.15.0-microsoft-standard-WSL2"
+    if echo "$PROC_VERSION_MOCK" | grep -qi microsoft; then
+      echo "WSL2"
+    elif [[ "$(uname)" == "Darwin" ]]; then
+      echo "macOS"
+    else
+      echo "Linux"
+    fi
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "WSL2" ]
+}
+
 # SSH config 反映確認: ssh.exe -G で user git が返ること（Windows 側 config 設定済みの場合）
 @test "SSH config: ssh.exe -G github.com で user git が返る（Windows SSH config 設定済み）" {
   # ssh.exe モックを作成（Windows 側 config 設定済みの状態をシミュレート）

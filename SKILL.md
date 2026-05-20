@@ -139,9 +139,13 @@ $SSH_ADD_CMD -l 2>/dev/null || echo "SSH Agent 未接続"
 echo "--- github-* エイリアス ---"
 grep "^Host github-" ~/.ssh/config 2>/dev/null || echo "(なし)"
 if [[ "$OS_TYPE" == "WSL2" ]]; then
-  WIN_USERNAME=$(cmd.exe /c 'echo %USERNAME%' 2>/dev/null | tr -d '\r' || echo "$USER")
-  echo "--- github-* エイリアス (Windows) ---"
-  grep "^Host github-" "/mnt/c/Users/$WIN_USERNAME/.ssh/config" 2>/dev/null || echo "(なし)"
+  WIN_USERNAME=$(cmd.exe /c 'echo %USERNAME%' 2>/dev/null | tr -d '\r')
+  if [ -z "$WIN_USERNAME" ]; then
+    echo "⚠️ Windows ユーザー名取得失敗（WSL interop が無効の可能性あり）"
+  else
+    echo "--- github-* エイリアス (Windows) ---"
+    grep "^Host github-" "/mnt/c/Users/$WIN_USERNAME/.ssh/config" 2>/dev/null || echo "(なし)"
+  fi
 fi
 
 # credential helper の確認

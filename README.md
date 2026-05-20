@@ -1,7 +1,7 @@
 # github-auth-shiyoka
 
 > [!NOTE]
-> このスキルは現在テスト中です。不具合・改善点があれば Issue でお知らせください。
+> **v0.4.0** — 開発初期段階です。主要な認証フローは動作確認済みですが、環境によって想定外の問題が発生する可能性があります。不具合・改善点は Issue でお知らせください。
 
 Claude Code スキル — GitHubの認証ばセッティングしよか！
 
@@ -29,6 +29,14 @@ Fine-grained PAT（リポジトリ単位の権限制御）を最優先とし、S
 ```bash
 git clone https://github.com/ambasad/claude-skill-github-auth-shiyoka.git ~/.claude/skills/github-auth-shiyoka
 ```
+
+インストール後、Claude Code を再起動するとスキルが認識されます。認識されているか確認するには：
+
+```
+/github-auth-shiyoka
+```
+
+と入力してスキルが起動すれば成功です。
 
 ## 使い方
 
