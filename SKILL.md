@@ -32,9 +32,45 @@ GitHub 認証を自動的に行えるようにする。
 
 スキル起動直後にまずユーザーへの確認を行い、その後セキュリティ監査と設定手順に進む。
 
-### 0. 対象ユーザー・リポジトリを確認する（最初に必ず聞く）
+### 0. 対象ユーザー・リポジトリを確認する（最初に必ず実行）
 
-コマンドを一切実行する前に、以下をユーザーに確認する：
+まずカレントディレクトリに `.git` があるかを確認し、あれば remote URL から自動検出する：
+
+```bash
+# .git の有無を確認
+if [ -d .git ] || git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "✅ git リポジトリを検出"
+
+  # remote URL を取得
+  REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+
+  if [ -n "$REMOTE_URL" ]; then
+    echo "remote URL: $REMOTE_URL"
+
+    # HTTPS / SSH どちらの形式でも user と repo を抽出
+    if echo "$REMOTE_URL" | grep -q "github.com"; then
+      # HTTPS: https://github.com/<user>/<repo>.git
+      # SSH:   git@github.com:<user>/<repo>.git
+      GITHUB_PATH=$(echo "$REMOTE_URL" \
+        | sed -E 's|https://github.com/||; s|git@github.com:||; s|\.git$||')
+      TARGET_USER=$(echo "$GITHUB_PATH" | cut -d'/' -f1)
+      TARGET_REPO=$(echo "$GITHUB_PATH" | cut -d'/' -f2)
+      echo "検出: ユーザー/組織 = $TARGET_USER, リポジトリ = $TARGET_REPO"
+    else
+      echo "ℹ️  GitHub 以外のリモートのため手動入力が必要"
+    fi
+  else
+    echo "ℹ️  remote origin が未設定"
+  fi
+else
+  echo "ℹ️  git リポジトリが見つかりません"
+fi
+```
+
+検出結果をもとに、以下をユーザーに確認する：
+
+- **`.git` あり・remote あり** → 検出した `TARGET_USER` / `TARGET_REPO` を提示して「この内容で合っていますか？」と確認する
+- **`.git` なし・remote なし** → 以下を手動で確認する：
 
 ```
 以下を教えてください：
@@ -44,7 +80,11 @@ GitHub 認証を自動的に行えるようにする。
 
 2. アクセスしたいリポジトリ名
    例：my-repo（複数ある場合はカンマ区切りで）
+```
 
+加えて、どちらの場合も以下を確認する：
+
+```
 3. 必要な操作
    - clone / pull のみ（Read-only）
    - push も必要（Read and write）
@@ -55,7 +95,7 @@ GitHub 認証を自動的に行えるようにする。
    - 既存設定のセキュリティ確認をしたい
 ```
 
-回答を受け取ったら、その内容を `TARGET_USER`・`TARGET_REPO`・`NEED_WRITE` として以降の手順に引き継ぐ。
+確認が取れたら `TARGET_USER`・`TARGET_REPO`・`NEED_WRITE` として以降の手順に引き継ぐ。
 
 ---
 
