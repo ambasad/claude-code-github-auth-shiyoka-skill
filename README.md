@@ -46,6 +46,22 @@ git clone https://github.com/ambasad/claude-code-github-auth-shiyoka-skill.git ~
 
 と入力してスキルが起動すれば成功です。
 
+### Agentic モードを有効にする（オプション）
+
+デフォルトでは手動起動のみです。「GitHub認証」「PAT設定」「git clone で認証エラー」などのキーワードを会話中に検出して **自動起動させたい場合** は、以下のコマンドで frontmatter を変更してください：
+
+```bash
+sed -i 's/^disable-model-invocation: true$/disable-model-invocation: false/' \
+  ~/.claude/skills/github-auth-shiyoka/SKILL.md
+```
+
+元に戻す場合：
+
+```bash
+sed -i 's/^disable-model-invocation: false$/disable-model-invocation: true/' \
+  ~/.claude/skills/github-auth-shiyoka/SKILL.md
+```
+
 ## 使い方
 
 Claude Code のプロンプトで以下を入力：
