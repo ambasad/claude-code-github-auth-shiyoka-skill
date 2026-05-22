@@ -30,15 +30,42 @@ GitHub 認証を自動的に行えるようにする。
 
 ## セキュリティ監査モード（スキル起動時に常に最初に実行）
 
-スキル起動直後に以下の監査フローを実行し、**セキュリティレポートを出力**してから設定手順に進む。
+スキル起動直後にまずユーザーへの確認を行い、その後セキュリティ監査と設定手順に進む。
+
+### 0. 対象ユーザー・リポジトリを確認する（最初に必ず聞く）
+
+コマンドを一切実行する前に、以下をユーザーに確認する：
+
+```
+以下を教えてください：
+
+1. GitHub ユーザー名（または組織名）
+   例：myuser / my-org
+
+2. アクセスしたいリポジトリ名
+   例：my-repo（複数ある場合はカンマ区切りで）
+
+3. 必要な操作
+   - clone / pull のみ（Read-only）
+   - push も必要（Read and write）
+
+4. 現在の状況
+   - 初めて設定する
+   - 認証エラーが出ている（エラーメッセージを貼ってください）
+   - 既存設定のセキュリティ確認をしたい
+```
+
+回答を受け取ったら、その内容を `TARGET_USER`・`TARGET_REPO`・`NEED_WRITE` として以降の手順に引き継ぐ。
+
+---
 
 ### 1. 現在の GitHub 認証状態を診断
 
 ```bash
-# GitHub CLI による認証状態確認
+# GitHub CLI による認証状態確認（グローバル設定の参照のみ・変更しない）
 gh auth status 2>&1 || echo "gh コマンドが見つからないか未認証"
 
-# 現在の credential helper 確認
+# credential helper の確認（グローバル・ローカル両方）
 echo "=== credential helper ==="
 git config --global credential.helper 2>/dev/null || echo "(グローバル未設定)"
 git config --local credential.helper 2>/dev/null || echo "(ローカル未設定)"
@@ -54,6 +81,8 @@ else
 fi
 echo "OS: $OS_TYPE"
 ```
+
+> **注意：** ここで確認するのは現在の設定状態のみ。Step 0 で確認した `TARGET_USER` / `TARGET_REPO` に対してこれらの設定が適切かどうかを次のステップで判断する。
 
 ### 2. PAT 種別を確認（Fine-grained か Classic か）
 
@@ -165,6 +194,11 @@ git config --global credential.https://github.com.helper 2>/dev/null | grep -q "
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔐 GitHub 認証 セキュリティレポート
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【対象】
+  - ユーザー / 組織: <TARGET_USER>
+  - リポジトリ: <TARGET_REPO>
+  - 必要な操作: <Read-only / Read and write>
 
 【現在の認証状態】
   - 認証方式: <Fine-grained PAT / Classic PAT / OAuth / 未認証>
