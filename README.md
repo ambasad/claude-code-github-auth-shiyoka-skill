@@ -56,6 +56,17 @@ github-auth-shiyoka を Agentic モードにして
 
 Claude が `~/.claude/skills/github-auth-shiyoka/SKILL.md` の `disable-model-invocation` を `false` に変更します。
 
+> [!NOTE]
+> セキュリティポリシーにより Claude が `~/.claude/skills/` を編集できない場合は、手動で変更してください：
+> ```
+> # 変更前
+> disable-model-invocation: true
+>
+> # 変更後
+> disable-model-invocation: false
+> ```
+> ファイルパス：`~/.claude/skills/github-auth-shiyoka/SKILL.md`（frontmatter の 4 行目）
+
 元に戻す場合も同様です：
 
 ```
