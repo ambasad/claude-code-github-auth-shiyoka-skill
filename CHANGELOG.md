@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.8.0 - 2026-05-22
+
+### 修正
+- SKILL.md: Step 2a の credential helper 設定を `--global` から `--local` に変更（PAT 認証はプロジェクト単位・グローバル設定を汚染しない）
+- SKILL.md: 解除コマンドも `--local` に統一
+- SKILL.md: 監査フローの credential helper チェックをローカル設定優先に変更
+- README.md: HTTPS + PAT 方式の説明に「グローバル設定は変更しない」を明記
+
+---
+
 ## v0.7.0 - 2026-05-22
 
 ### 修正

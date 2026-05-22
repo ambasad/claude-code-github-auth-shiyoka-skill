@@ -1,7 +1,7 @@
 # claude-code-github-auth-shiyoka-skill
 
 > [!NOTE]
-> **v0.7.0** — 開発初期段階です。主要な認証フローは動作確認済みですが、環境によって想定外の問題が発生する可能性があります。不具合・改善点は Issue でお知らせください。
+> **v0.8.0** — 開発初期段階です。主要な認証フローは動作確認済みですが、環境によって想定外の問題が発生する可能性があります。不具合・改善点は Issue でお知らせください。
 
 Claude Code 用 GitHub 認証スキル — GitHubの認証ばセッティングしよか！
 
@@ -117,7 +117,7 @@ Claude Code のプロンプトで以下を入力：
 ### プロジェクトごとの認証設定
 
 - **SSH 方式**：remote URL（`git@github-<alias>:org/repo.git`）に設定が記録される
-- **HTTPS + PAT 方式**：`op.env` + `git config --local` でプロジェクト単位に設定
+- **HTTPS + PAT 方式**：`op.env` + `git config --local` でプロジェクト単位に設定（グローバル設定は変更しない）
 
 `op.env.example` をプロジェクトにコミットしておくと、他のメンバーが `cp op.env.example op.env` で即座に使い始められる：
 

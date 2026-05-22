@@ -2,7 +2,7 @@
 name: github-auth-shiyoka
 description: GitHub認証設定が必要な場合（git clone/push/pullで認証エラー時、または「GitHub認証」「PAT設定」「1Password GitHub」「GitHubセキュリティチェック」「認証の安全確認」などと言及されたとき）に自動で環境診断＋最適セキュア設定を行い、さらに既存トークンの有効期限・権限精査・セキュリティレポートを出力します。1Password Vault優先・Fine-grained PATを最優先にし、ディスク非保存を徹底。
 disable-model-invocation: true
-version: "0.7.0"
+version: "0.8.0"
 ---
 
 # github-auth-shiyoka
@@ -221,7 +221,10 @@ else
 fi
 
 # credential helper が op を使っているか確認
-git config --global credential.https://github.com.helper 2>/dev/null | grep -q "op read" \
+# ローカル設定を優先確認（PAT 認証はプロジェクトローカルが正）
+( git config --local credential.https://github.com.helper 2>/dev/null || \
+  git config --global credential.https://github.com.helper 2>/dev/null ) \
+  | grep -q "op read" \
   && echo "✅ credential helper: 1Password CLI 連携済み" \
   || echo "ℹ️  credential helper: 1Password CLI 未連携"
 ```
@@ -575,28 +578,24 @@ chmod 600 op.env
 grep -qxF 'op.env' .gitignore 2>/dev/null || echo 'op.env' >> .gitignore
 ```
 
-### 3. 既存の credential helper を確認する
+### 3. 既存のローカル credential helper を確認する
 
 ```bash
-git config --global credential.helper
+git config --local credential.helper 2>/dev/null || echo "(ローカル未設定)"
 ```
 
-すでに別の設定（`manager` など）が入っている場合は上書きになる。必要であればバックアップしておく：
-
-```bash
-# バックアップ（任意）
-git config --global credential.helper >> ~/credential-helper.bak
-```
+`--local` を使うことで `.git/config` に書き込まれ、**このリポジトリだけに適用**される。グローバル設定は変更しない。
 
 ### 4. credential helper を設定する
 
 ```bash
 set -a && source op.env && set +a
-git config --global credential.https://github.com.helper \
+git config --local credential.https://github.com.helper \
   "!f() { echo username=$GITHUB_USERNAME; echo password=\$(op read \"$GITHUB_TOKEN\"); }; f"
 ```
 
-> `credential.https://github.com.helper` とすることで github.com 専用の設定になり、GitLab など他のホストに影響しない。
+> `--local` により `.git/config` に記録され、このプロジェクト以外の git 操作には影響しない。
+> `credential.https://github.com.helper` とすることで github.com 専用の設定になり、GitLab など他のホストにも影響しない。
 
 ---
 
@@ -1118,7 +1117,7 @@ echo 'op.env' >> .gitignore
 **HTTPS 方式（Step 2a: op）の場合：**
 
 ```bash
-git config --global --unset credential.https://github.com.helper
+git config --local --unset credential.https://github.com.helper
 ```
 
 > PAT 自体を無効化する場合：`https://github.com/settings/personal-access-tokens`
