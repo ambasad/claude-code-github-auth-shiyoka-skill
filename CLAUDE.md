@@ -50,6 +50,16 @@ bats tests/github-auth-shiyoka.bats --filter "SSH config"
 cp /tmp/SKILL_updated.md ~/.claude/skills/github-auth-shiyoka/SKILL.md
 ```
 
+### このリポジトリのファイルに個人情報を含めない
+
+`SKILL.md`・`CLAUDE.md`・`README.md` 等、リポジトリ内のすべてのファイルに以下を含めてはならない：
+
+- GitHub ユーザー名・組織名
+- 1Password のアイテム名・Vault 名
+- その他アカウント固有の文字列
+
+サンプルコードや例示はすべて汎用プレースホルダー（`<ユーザー名>`・`[Vault名]` など）に置き換えること。スキル実行中にユーザー固有の値が判明しても、ファイルへの書き込み前に汎用表現に変換する。
+
 ## 設計上の重要な決定事項
 
 ### `ssh.exe` を使う理由
