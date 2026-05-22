@@ -2,7 +2,7 @@
 name: github-auth-shiyoka
 description: GitHub認証設定が必要な場合（git clone/push/pullで認証エラー時、または「GitHub認証」「PAT設定」「1Password GitHub」「GitHubセキュリティチェック」「認証の安全確認」などと言及されたとき）に自動で環境診断＋最適セキュア設定を行い、さらに既存トークンの有効期限・権限精査・セキュリティレポートを出力します。1Password Vault優先・Fine-grained PATを最優先にし、ディスク非保存を徹底。
 disable-model-invocation: true
-version: "0.6.0"
+version: "0.7.0"
 ---
 
 # github-auth-shiyoka
